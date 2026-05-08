@@ -1,0 +1,6 @@
+{
+  "name": "NICU Neonate Growth Tracker",
+  "description": "Weekly anthropometry tracking and Fenton 2013 growth curve plotting for NICU neonates.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

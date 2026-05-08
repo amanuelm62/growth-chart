@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "neonate": {
+      "title": "Neonate",
+      "description": "Patient record for a newborn in the NICU",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "gender": { "type": "string", "enum": ["male", "female"] },
+        "mrn": { "type": "string" },
+        "dob": { "type": "string", "format": "date-time" },
+        "birthGestationalWeeks": { "type": "integer" },
+        "birthGestationalDays": { "type": "integer" },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["name", "gender", "dob", "birthGestationalWeeks", "birthGestationalDays", "ownerId"]
+    },
+    "measurement": {
+      "title": "Measurement",
+      "description": "Anthropometry measurement entry",
+      "type": "object",
+      "properties": {
+        "neonateId": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "weight": { "type": "number" },
+        "length": { "type": "number" },
+        "headCircumference": { "type": "number" },
+        "gestationalAgeWeeks": { "type": "integer" },
+        "gestationalAgeDays": { "type": "integer" },
+        "growthVelocity": { "type": "number" },
+        "weightZScore": { "type": "number" },
+        "weightPercentile": { "type": "number" },
+        "lengthZScore": { "type": "number" },
+        "lengthPercentile": { "type": "number" },
+        "hcZScore": { "type": "number" },
+        "hcPercentile": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["neonateId", "date", "weight", "length", "headCircumference", "gestationalAgeWeeks", "gestationalAgeDays"]
+    }
+  },
+  "firestore": {
+    "/neonates/{neonateId}": {
+      "schema": "neonate",
+      "description": "Neonate records"
+    },
+    "/neonates/{neonateId}/measurements/{measurementId}": {
+      "schema": "measurement",
+      "description": "Weekly measurements for a neonate"
+    }
+  }
+}

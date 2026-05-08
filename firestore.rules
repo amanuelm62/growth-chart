@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128;
+    }
+
+    function isValidNeonate(data) {
+      return data.name is string && data.name.size() > 0 &&
+             data.gender in ['male', 'female'] &&
+             data.dob is string &&
+             data.birthGestationalWeeks is int &&
+             data.birthGestationalWeeks >= 20 &&
+             data.birthGestationalWeeks <= 50 &&
+             data.birthGestationalDays is int &&
+             data.birthGestationalDays >= 0 &&
+             data.birthGestationalDays <= 6 &&
+             data.ownerId == request.auth.uid;
+    }
+
+    function isValidMeasurement(data) {
+      return data.neonateId is string &&
+             data.date is string &&
+             data.weight is number &&
+             data.length is number &&
+             data.headCircumference is number &&
+             data.gestationalAgeWeeks is int &&
+             data.gestationalAgeDays is int;
+    }
+
+    match /neonates/{neonateId} {
+      allow read: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create: if isSignedIn() && isValidNeonate(request.resource.data);
+      allow update: if isSignedIn() && resource.data.ownerId == request.auth.uid 
+                    && isValidNeonate(request.resource.data)
+                    && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      
+      match /measurements/{measurementId} {
+        allow read: if isSignedIn() && get(/databases/$(database)/documents/neonates/$(neonateId)).data.ownerId == request.auth.uid;
+        allow create: if isSignedIn() && isValidMeasurement(request.resource.data)
+                      && get(/databases/$(database)/documents/neonates/$(neonateId)).data.ownerId == request.auth.uid;
+        allow update: if isSignedIn() && isValidMeasurement(request.resource.data)
+                      && get(/databases/$(database)/documents/neonates/$(neonateId)).data.ownerId == request.auth.uid;
+        allow delete: if isSignedIn() && get(/databases/$(database)/documents/neonates/$(neonateId)).data.ownerId == request.auth.uid;
+      }
+    }
+  }
+}
